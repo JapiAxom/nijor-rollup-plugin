@@ -10,6 +10,7 @@ async function bundle(code, rootDir,treeShake=true) {
             'nijor/router': path.join(rootDir, 'nijor/src/router.js'),
             'nijor/#router': path.join(rootDir, 'nijor/src/#router.js'),
             'nijor/requests': path.join(rootDir, 'nijor/src/requests.js'),
+            'nijor/views':path.join(rootDir, 'nijor/src/views.js'),
         },
         paths: [path.join(rootDir, 'src')],
         external: [],
