@@ -6,11 +6,11 @@ const path = require('path');
 async function bundle(code, rootDir,treeShake=true) {
     let includePathOptions = {
         include: {
-            'nijor/components': path.join(rootDir, 'nijor/src/components.js'),
-            'nijor/router': path.join(rootDir, 'nijor/src/router.js'),
-            'nijor/#router': path.join(rootDir, 'nijor/src/#router.js'),
-            'nijor/requests': path.join(rootDir, 'nijor/src/requests.js'),
-            'nijor/views':path.join(rootDir, 'nijor/src/views.js'),
+            'nijor/components': path.join(rootDir, 'node_modules/@nijor/nijor/src/components.js'),
+            'nijor/router': path.join(rootDir, 'node_modules/@nijor/nijor/src/router.js'),
+            'nijor/#router': path.join(rootDir, 'node_modules/@nijor/nijor/src/#router.js'),
+            'nijor/requests': path.join(rootDir, 'node_modules/@nijor/nijor/src/requests.js'),
+            'nijor/views':path.join(rootDir, 'node_modules/@nijor/nijor/src/views.js'),
         },
         paths: [path.join(rootDir, 'src')],
         external: [],
