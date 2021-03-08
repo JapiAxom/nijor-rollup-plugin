@@ -8,7 +8,7 @@ async function bundle(code, rootDir,treeShake=true) {
         include: {
             'nijor/components': path.join(rootDir, 'node_modules/@nijor/nijor/src/components.js'),
             'nijor/router': path.join(rootDir, 'node_modules/@nijor/nijor/src/router.js'),
-            'nijor/#router': path.join(rootDir, 'node_modules/@nijor/nijor/src/#router.js'),
+            'nijor/#router': path.join(rootDir, 'node_modules/@nijor/nijor/src/hashrouter.js'),
             'nijor/requests': path.join(rootDir, 'node_modules/@nijor/nijor/src/requests.js'),
             'nijor/views':path.join(rootDir, 'node_modules/@nijor/nijor/src/views.js'),
         },
