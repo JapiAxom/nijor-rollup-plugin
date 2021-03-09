@@ -28,6 +28,7 @@ module.exports = async function(doc,scope,rootDir){
     template = template.replace(/{/g,'${');
     template = template.replace(/\\\${/g,'\{');
     const VirtualDocument = new JSDOM(template);
+    console.clear();
     let scripts = await ReturnScripts(doc,rootDir);
     // Adding the n-scope attribute starts here
     VirtualDocument.window.document.body.querySelectorAll('*').forEach((child) => {
@@ -50,7 +51,8 @@ module.exports = async function(doc,scope,rootDir){
         child.setAttribute('n-model',model);
         child.removeAttribute('n:model');
         if(child.tagName==="INPUT"){
-            child.setAttribute('oninput',`fn_Nijorbind(this)`);
+            child.setAttribute('oninput',`fn_Nijorview(this)`);
+            child.setAttribute('onchange',`fn_Nijorview(this)`);
         }
     });
     // Compiling n:model ends here

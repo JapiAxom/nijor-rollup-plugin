@@ -14,6 +14,7 @@ function returnScriptsContent(doc,execute){
 function ReturnScripts(doc,execute){
   try {
     const importStatementRegex = /import[^']+(?= from .*).*/gm;
+    //let script = doc.window.document.querySelector('script[execute="'+execute+'"]').innerHTML;
     let script = returnScriptsContent(doc,execute);
     let ImportStatements;
     try {
@@ -25,9 +26,13 @@ function ReturnScripts(doc,execute){
        script.match(importStatementRegex).forEach(element=>{
         script = script.replace(element,'');
     }); 
-    }catch(error){}
+    } catch (error) {
+        
+    }
+    
     return {ImportStatements,script};
   } catch (error) {
+    console.log(error);
     return {ImportStatements:'',script:''};
   }
   
