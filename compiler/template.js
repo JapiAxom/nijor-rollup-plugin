@@ -40,8 +40,12 @@ module.exports = async function(doc,scope,rootDir){
     // Compiling n:route starts here
     VirtualDocument.window.document.body.querySelectorAll('a[n:route]').forEach(child=>{
         let route = child.getAttribute('n:route');
-        child.setAttribute('onclick',`(function(){try{history.pushState(null,null,'${route}');history.pushState(null,null,'${route}');history.back();}catch(e){window.location.href='${route}';}})()`);
         child.removeAttribute('n:route');
+        if(route.charAt(0)==='#'){
+            child.setAttribute('href',route);
+            return;
+        }
+        child.setAttribute('onclick',`(function(){try{history.pushState(null,null,'${route}');history.pushState(null,null,'${route}');history.back();}catch(e){window.location.href='${route}';}})()`);
     });
     // Compiling n:route ends here
 
