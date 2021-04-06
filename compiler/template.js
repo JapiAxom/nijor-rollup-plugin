@@ -45,7 +45,7 @@ module.exports = async function(doc,scope,rootDir){
             child.setAttribute('href',route);
             return;
         }
-        child.setAttribute('onclick',`(function(){try{history.pushState(null,null,'${route}');history.pushState(null,null,'${route}');history.back();}catch(e){window.location.href='${route}';}})()`);
+        child.setAttribute('onclick',`window.location.n_redirect('${route}')`);
     });
     // Compiling n:route ends here
 
