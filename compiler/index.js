@@ -35,7 +35,7 @@ function ReturnScripts(doc,execute){
 function ReturnModule(doc){
     let Mod = [];
     doc.window.document.querySelectorAll("[n:imported]").forEach(child=>{
-        let componentVar = 'NijorComponent_'+child.tagName.toLowerCase();
+        let componentVar = '$'+child.tagName.toLowerCase();
         let componentName = child.tagName.toLowerCase();
         let from = child.getAttribute('n:imported')+'.nijor';
         Mod.push(`
@@ -48,7 +48,7 @@ function ReturnModule(doc){
 function ReturnRunModule(doc){
     let Mod = [];
     doc.window.document.querySelectorAll("[n:imported]").forEach(child=>{
-    let componentVar = 'NijorComponent_'+child.tagName.toLowerCase();
+    let componentVar = '$'+child.tagName.toLowerCase();
     Mod.push(`${componentVar}.run();`);
     });
     return Mod.join('');
