@@ -1,16 +1,17 @@
 const rollup = require('rollup');
 const includePaths = require('rollup-plugin-includepaths');
 const virtual = require('@rollup/plugin-virtual');
-var babelCore = require("@babel/core");
+// var babelCore = require("@babel/core");
 const path = require('path');
 async function bundle(code, rootDir,treeShake=true) {
     let includePathOptions = {
         include: {
-            'nijor/components': path.join(rootDir, 'nijor/src/components.js'),
-            'nijor/router': path.join(rootDir, 'nijor/src/router.js'),
-            'nijor/#router': path.join(rootDir, 'nijor/src/#router.js'),
-            'nijor/requests': path.join(rootDir, 'nijor/src/requests.js'),
-            'nijor/views':path.join(rootDir, 'nijor/src/views.js'),
+            'nijor/components': path.join(rootDir, 'node_modules/@nijor/nijor/src/components.js'),
+            'nijor/router': path.join(rootDir, 'node_modules/@nijor/nijor/src/router.js'),
+            'nijor/#router': path.join(rootDir, 'node_modules/@nijor/nijor/src/hashrouter.js'),
+            'nijor/requests': path.join(rootDir, 'node_modules/@nijor/nijor/src/requests.js'),
+            'nijor/views':path.join(rootDir, 'node_modules/@nijor/nijor/src/views.js'),
+            'nijor/events':path.join(rootDir, 'node_modules/@nijor/nijor/src/nijor-events.js'),
         },
         paths: [path.join(rootDir, 'src')],
         external: [],
@@ -34,8 +35,8 @@ async function bundle(code, rootDir,treeShake=true) {
         }
     }
     let result = await output[0].code;
-    result = babelCore.transformSync(result,{presets:['@babel/preset-env']}).code;
-    result = result.replace('"use strict";','');
+    // result = babelCore.transformSync(result,{presets:['@babel/preset-env']}).code;
+    // result = result.replace('"use strict";','');
     return result;
 }
 module.exports = bundle;
