@@ -2,21 +2,8 @@ const rollup = require('rollup');
 const includePaths = require('rollup-plugin-includepaths');
 const virtual = require('@rollup/plugin-virtual');
 // var babelCore = require("@babel/core");
-const path = require('path');
-async function bundle(code, rootDir,treeShake=true) {
-    let includePathOptions = {
-        include: {
-            'nijor/components': path.join(rootDir, 'node_modules/@nijor/nijor/src/components.js'),
-            'nijor/router': path.join(rootDir, 'node_modules/@nijor/nijor/src/router.js'),
-            'nijor/#router': path.join(rootDir, 'node_modules/@nijor/nijor/src/hashrouter.js'),
-            'nijor/requests': path.join(rootDir, 'node_modules/@nijor/nijor/src/requests.js'),
-            'nijor/views':path.join(rootDir, 'node_modules/@nijor/nijor/src/views.js'),
-            'nijor/events':path.join(rootDir, 'node_modules/@nijor/nijor/src/nijor-events.js'),
-        },
-        paths: [path.join(rootDir, 'src')],
-        external: [],
-        extensions: ['.js', '.nijor']
-    };
+// const path = require('path');
+async function bundle(code,includePathOptions,treeShake=true) {
     const inputOptions = {
         input: 'virtualScript',
         treeshake: treeShake,

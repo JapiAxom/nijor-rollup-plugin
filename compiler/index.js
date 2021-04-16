@@ -54,7 +54,7 @@ function ReturnRunModule(doc){
     });
     return Mod.join('');
 }
-function NijorCompiler(rootDir) {
+function NijorCompiler(rootDir,includePathOptions) {
   let opts = { include: '**/*.nijor' };
   const filter = createFilter(opts.include, opts.exclude);
   return {
@@ -74,7 +74,7 @@ function NijorCompiler(rootDir) {
       } catch (error) {}
       const scope = GenerateID(6,20);
       const ComponentScope = GenerateID(2,5).toLowerCase();
-      const template = await TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir);
+      const template = await TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir,includePathOptions);
       const scripts =  ReturnScripts(VirtualDocument,'pre').script;
       const importStatementsPre =  ReturnScripts(VirtualDocument,'pre').ImportStatements;
       const Postscripts =  ReturnScripts(VirtualDocument,'post').script;

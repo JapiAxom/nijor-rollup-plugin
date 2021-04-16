@@ -5,14 +5,14 @@ const path = require('path');
 const bundle = require('./bundler.js');
 const ReturnStyles = require('./style.js');
 const GenerateID = require('./uniqueId.js');
-async function ReturnScripts(doc,rootDir){
+async function ReturnScripts(doc,includePathOptions){
 try {
-    return await bundle(doc.window.document.querySelector('script[execute="pre"]').innerHTML,rootDir,false);
+    return await bundle(doc.window.document.querySelector('script[execute="pre"]').innerHTML,includePathOptions,false);
 } catch (error) {
     return '';
 }
 }
-module.exports = async function(doc,scope,ComponentScope,rootDir){
+module.exports = async function(doc,scope,ComponentScope,rootDir,includePathOptions){
     ReturnStyles(doc,scope,rootDir);
     let template = doc.window.document.querySelector("template").innerHTML;
     // Changing the name of the components starts here
@@ -41,7 +41,7 @@ module.exports = async function(doc,scope,ComponentScope,rootDir){
     template = template.replace(/{/g,'${');
     template = template.replace(/\\\${/g,'\{');
     const VirtualDocument = new JSDOM(template);
-    let scripts = await ReturnScripts(doc,rootDir);
+    let scripts = await ReturnScripts(doc,includePathOptions);
 
     // Adding the n-scope attribute starts here
     VirtualDocument.window.document.body.querySelectorAll('*').forEach((child) => {
