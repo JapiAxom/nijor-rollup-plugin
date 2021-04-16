@@ -12,9 +12,22 @@ try {
     return '';
 }
 }
-module.exports = async function(doc,scope,rootDir){
+module.exports = async function(doc,scope,ComponentScope,rootDir){
     ReturnStyles(doc,scope,rootDir);
     let template = doc.window.document.querySelector("template").innerHTML;
+    // Changing the name of the components starts here
+    doc.window.document.querySelectorAll("[n:imported]").forEach(child=>{
+        // The ComponentScope's value is added after every imported component.
+        // Ex :- <header> -> <headervxxh> depending upon ComponentScope
+        let OriginalComponentName = child.tagName.toLowerCase();
+        let componentName = OriginalComponentName+ComponentScope;
+        let cpname = new RegExp('<'+OriginalComponentName,'gim');
+        let cpname2 = new RegExp('</'+OriginalComponentName+'>','gim');
+        template = template.replace(cpname,'<'+componentName);
+        template = template.replace(cpname2,'</'+componentName+'>');
+    });
+    // Changing the name of the components ends here
+
     // Compiling {{view}} starts here
     try {
         template.match(/{{(.*)}}/g).forEach(child=>{
@@ -28,15 +41,14 @@ module.exports = async function(doc,scope,rootDir){
     template = template.replace(/{/g,'${');
     template = template.replace(/\\\${/g,'\{');
     const VirtualDocument = new JSDOM(template);
-    console.clear();
     let scripts = await ReturnScripts(doc,rootDir);
+
     // Adding the n-scope attribute starts here
     VirtualDocument.window.document.body.querySelectorAll('*').forEach((child) => {
         if(child.hasAttribute('n-scope') || child.tagName.toLowerCase()==="nijordata") return;
         child.setAttribute('n-scope',scope);
     });
     // Adding the n-scope attribute ends here
-
     // Compiling n:route starts here
     VirtualDocument.window.document.body.querySelectorAll('a[n:route]').forEach(child=>{
         let route = child.getAttribute('n:route');

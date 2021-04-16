@@ -32,11 +32,12 @@ function ReturnScripts(doc,execute){
   }
   
 }
-function ReturnModule(doc){
+function ReturnModule(doc,ComponentScope){
     let Mod = [];
     doc.window.document.querySelectorAll("[n:imported]").forEach(child=>{
         let componentVar = '$'+child.tagName.toLowerCase();
-        let componentName = child.tagName.toLowerCase();
+        let OriginalComponentName = child.tagName.toLowerCase();
+        let componentName = OriginalComponentName+ComponentScope;
         let from = child.getAttribute('n:imported')+'.nijor';
         Mod.push(`
         import ${componentVar} from "${from}";
@@ -61,8 +62,9 @@ function NijorCompiler(rootDir) {
 
   async transform(code, id) {
     if (filter(id)) {
-      const VirtualDocument = new JSDOM(code);
-      console.clear();
+      let newCode = code.replace('<style>','<n:style>');
+      newCode = newCode.replace('</style>','</n:style>');
+      const VirtualDocument = new JSDOM(newCode);
       const specsAttr = VirtualDocument.window.document.querySelector('template').getAttribute('specs') || '';
       try {
         VirtualDocument.window.document.querySelectorAll('script').forEach(child=>{
@@ -71,13 +73,14 @@ function NijorCompiler(rootDir) {
         });
       } catch (error) {}
       const scope = GenerateID(6,20);
-      const template = await TemplateLoader(VirtualDocument,scope,rootDir);
+      const ComponentScope = GenerateID(2,5).toLowerCase();
+      const template = await TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir);
       const scripts =  ReturnScripts(VirtualDocument,'pre').script;
       const importStatementsPre =  ReturnScripts(VirtualDocument,'pre').ImportStatements;
       const Postscripts =  ReturnScripts(VirtualDocument,'post').script;
       const importStatementsPost =  ReturnScripts(VirtualDocument,'post').ImportStatements;
       const NijorComponentClass = ' __Nijor_ComponentClass'+GenerateID(3,9);
-      let mod = ReturnModule(VirtualDocument);
+      let mod = ReturnModule(VirtualDocument,ComponentScope);
       let runmod = ReturnRunModule(VirtualDocument);
           return {
               code: `

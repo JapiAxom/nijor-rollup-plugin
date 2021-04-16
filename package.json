@@ -1,6 +1,6 @@
 {
   "name": "@nijor/nijor-rollup-plugin",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "The rollup plugin for Nijor.",
   "main": "compiler/index.js",
   "scripts": {
@@ -22,7 +22,6 @@
   "dependencies": {
     "@rollup/plugin-virtual": "^2.0.3",
     "@rollup/pluginutils": "^4.1.0",
-    "jsdom": "^16.4.0",
-    "sass": "^1.32.8"
+    "jsdom": "^16.5.3"
   }
 }
