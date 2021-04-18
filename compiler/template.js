@@ -87,10 +87,14 @@ module.exports = function(doc,scope,ComponentScope,rootDir){
                     }
                     let event = elem.replace('on:','');
                     let fnscripts = `
-                    document.getElementById("${id}").addEventListener("${event}",function(e){${fnAttr}});
+                    setTimeout(()=>{
+                        document.getElementById("${id}").addEventListener("${event}",function(){
+                            ${fnAttr}
+                        });
+                    },3);
                     `;
                     child.removeAttribute(elem);
-                    let newPostscript = Postscripts + fnscripts;
+                    let newPostscript = Postscripts+fnscripts;
                     Postscripts = newPostscript;
         });
     });

@@ -61,6 +61,9 @@ function NijorCompiler(rootDir) {
   name: "nijorCompile",
 
   async transform(code, id) {
+    let componentName = id.split('\\');
+    componentName = componentName.reverse();
+    console.log(`Nijor: Compiling ${componentName[0]}.`);
     if (filter(id)) {
       let newCode = code.replace('<style','<n:style');
       newCode = newCode.replace('</style>','</n:style>');
@@ -74,10 +77,9 @@ function NijorCompiler(rootDir) {
       } catch (error) {}
       const scope = GenerateID(6,20);
       const ComponentScope = GenerateID(2,5).toLowerCase();
-      const {template} = TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir);
+      const {template,Postscripts} = TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir);
       const scripts =  ReturnScripts(VirtualDocument,'pre').script;
       const importStatementsPre =  ReturnScripts(VirtualDocument,'pre').ImportStatements;
-      const {Postscripts} =  TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir);
       const importStatementsPost =  ReturnScripts(VirtualDocument,'post').ImportStatements;
       const NijorComponentClass = ' __Nijor_ComponentClass'+GenerateID(3,9);
       let mod = ReturnModule(VirtualDocument);
