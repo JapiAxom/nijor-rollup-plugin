@@ -54,7 +54,7 @@ function ReturnRunModule(doc,ComponentScope){
     });
     return Mod.join('');
 }
-function NijorCompiler(rootDir,includePathOptions) {
+function NijorCompiler(rootDir) {
   let opts = { include: '**/*.nijor' };
   const filter = createFilter(opts.include, opts.exclude);
   return {
@@ -62,7 +62,7 @@ function NijorCompiler(rootDir,includePathOptions) {
 
   async transform(code, id) {
     if (filter(id)) {
-      let newCode = code.replace('<style>','<n:style>');
+      let newCode = code.replace('<style','<n:style');
       newCode = newCode.replace('</style>','</n:style>');
       const VirtualDocument = new JSDOM(newCode);
       const specsAttr = VirtualDocument.window.document.querySelector('template').getAttribute('specs') || '';
@@ -74,10 +74,10 @@ function NijorCompiler(rootDir,includePathOptions) {
       } catch (error) {}
       const scope = GenerateID(6,20);
       const ComponentScope = GenerateID(2,5).toLowerCase();
-      const template = await TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir,includePathOptions);
+      const {template} = TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir);
       const scripts =  ReturnScripts(VirtualDocument,'pre').script;
       const importStatementsPre =  ReturnScripts(VirtualDocument,'pre').ImportStatements;
-      const Postscripts =  ReturnScripts(VirtualDocument,'post').script;
+      const {Postscripts} =  TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir);
       const importStatementsPost =  ReturnScripts(VirtualDocument,'post').ImportStatements;
       const NijorComponentClass = ' __Nijor_ComponentClass'+GenerateID(3,9);
       let mod = ReturnModule(VirtualDocument);
