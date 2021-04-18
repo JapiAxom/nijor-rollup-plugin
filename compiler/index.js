@@ -32,25 +32,25 @@ function ReturnScripts(doc,execute){
   }
   
 }
-function ReturnModule(doc,ComponentScope){
+function ReturnModule(doc){
     let Mod = [];
     doc.window.document.querySelectorAll("[n:imported]").forEach(child=>{
         let componentVar = '$'+child.tagName.toLowerCase();
-        let OriginalComponentName = child.tagName.toLowerCase();
-        let componentName = OriginalComponentName+ComponentScope;
         let from = child.getAttribute('n:imported')+'.nijor';
-        Mod.push(`
-        import ${componentVar} from "${from}";
-        ${componentVar}.init('${componentName}');`
-        );
+        Mod.push(`import ${componentVar} from "${from}";`);
     });
     return Mod.join('');
 }
-function ReturnRunModule(doc){
+function ReturnRunModule(doc,ComponentScope){
     let Mod = [];
     doc.window.document.querySelectorAll("[n:imported]").forEach(child=>{
     let componentVar = '$'+child.tagName.toLowerCase();
-    Mod.push(`${componentVar}.run();`);
+    let OriginalComponentName = child.tagName.toLowerCase();
+    let componentName = OriginalComponentName+ComponentScope;
+    Mod.push(`
+            ${componentVar}.init('${componentName}');
+            ${componentVar}.run();
+          `);
     });
     return Mod.join('');
 }
@@ -80,8 +80,8 @@ function NijorCompiler(rootDir,includePathOptions) {
       const Postscripts =  ReturnScripts(VirtualDocument,'post').script;
       const importStatementsPost =  ReturnScripts(VirtualDocument,'post').ImportStatements;
       const NijorComponentClass = ' __Nijor_ComponentClass'+GenerateID(3,9);
-      let mod = ReturnModule(VirtualDocument,ComponentScope);
-      let runmod = ReturnRunModule(VirtualDocument);
+      let mod = ReturnModule(VirtualDocument);
+      let runmod = ReturnRunModule(VirtualDocument,ComponentScope);
           return {
               code: `
                 import ${NijorComponentClass} from 'nijor/components';

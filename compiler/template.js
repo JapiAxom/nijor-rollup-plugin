@@ -57,7 +57,7 @@ module.exports = async function(doc,scope,ComponentScope,rootDir,includePathOpti
             child.setAttribute('href',route);
             return;
         }
-        child.setAttribute('onclick',`window.location.n_redirect('${route}')`);
+        child.setAttribute('onclick',`window.nijor.redirect('${route}')`);
     });
     // Compiling n:route ends here
 

@@ -4,7 +4,7 @@ const sass = require('sass');
 function ReturnStyles(doc,scope,rootDir){
     try {
         let style = doc.window.document.getElementsByTagName('n:style')[0].innerHTML;
-        style = style.replace('&amp;','&');
+        style = style.replace(/&amp;/g,'&');
         let cssStyle = sass.renderSync({
             data:style,
             outputStyle:'compressed'
