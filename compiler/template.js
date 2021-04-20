@@ -75,23 +75,18 @@ module.exports = function(doc,scope,ComponentScope,rootDir){
     VirtualDocument.window.document.querySelectorAll('*').forEach(child=>{
         let allAttributes = child.getAttributeNames().filter(element=>element.indexOf('on:')>-1); // Getting all the attribute names of the tag ang and filtering the attributes which start with "on:"
             allAttributes.forEach(elem=>{
-                    let id;
                     let fnAttr = child.getAttribute(elem);
                     let fnargs = fnAttr.split('(');
                     let fnName = fnargs[0];
-                    if(child.hasAttribute('id')){
-                        id = child.getAttribute('id');
-                    }else{
-                        id = fnName+ComponentScope;
-                        child.setAttribute('id',id);
-                    }
+                    let className = fnName+ComponentScope;
+                    child.classList.add(className);
                     let event = elem.replace('on:','');
                     let fnscripts = `
-                    setTimeout(()=>{
-                        document.getElementById("${id}").addEventListener("${event}",function(){
-                            ${fnAttr}
+                        document.querySelectorAll(".${className}").forEach(element=>{
+                            element.addEventListener("${event}",function(){
+                                ${fnAttr}
+                            });
                         });
-                    },3);
                     `;
                     child.removeAttribute(elem);
                     let newPostscript = Postscripts+fnscripts;

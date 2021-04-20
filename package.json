@@ -20,7 +20,6 @@
   },
   "homepage": "https://github.com/JapiAxom/nijor-rollup-plugin#readme",
   "dependencies": {
-    "@rollup/plugin-virtual": "^2.0.3",
     "@rollup/pluginutils": "^4.1.0",
     "jsdom": "^16.5.3"
   }

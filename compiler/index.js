@@ -33,6 +33,10 @@ function ReturnScripts(doc,execute){
   
 }
 function ReturnModule(doc){
+    /* convert the component imports to javascript imports
+    Ex:- <header n:imported="components/header"> will convert to 
+          import $header from "components/header";
+    */
     let Mod = [];
     doc.window.document.querySelectorAll("[n:imported]").forEach(child=>{
         let componentVar = '$'+child.tagName.toLowerCase();
@@ -47,9 +51,16 @@ function ReturnRunModule(doc,ComponentScope){
     let componentVar = '$'+child.tagName.toLowerCase();
     let OriginalComponentName = child.tagName.toLowerCase();
     let componentName = OriginalComponentName+ComponentScope;
+    /* 
+    get the ComponentScope
+    Change the name of the im
+    Call the run function on the imported components.
+    $header.init('header'+ComponentScope);
+    $header.run();
+    */
     Mod.push(`
             ${componentVar}.init('${componentName}');
-            ${componentVar}.run();
+            await ${componentVar}.run();
           `);
     });
     return Mod.join('');
@@ -95,7 +106,7 @@ function NijorCompiler(rootDir) {
                         ${scripts}
                         return(\`${template}\`);
                     }finally{
-                        setTimeout(function(){${runmod}${Postscripts}},3);
+                        setTimeout(async function(){${runmod}${Postscripts}},3);
                     }
                 });
               `,
