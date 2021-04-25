@@ -74,7 +74,7 @@ module.exports = function(doc,scope,ComponentScope,rootDir){
         }
         let RoutePath = route_array_separated_by_hash[0];
         let RouteHash = route_array_separated_by_hash[1];
-        child.setAttribute('onclick',`(function(){window.nijor.redirect('${RoutePath}');window.location.hash='${RouteHash}';window.nijor.redirect('${route}');})()`);
+        child.setAttribute('onclick',`(function(){history.pushState(null,null,'${RoutePath}');window.location.hash='${RouteHash}';})()`);
     });
     // Compiling n:route ends here
 
@@ -85,14 +85,12 @@ module.exports = function(doc,scope,ComponentScope,rootDir){
                     let fnAttr = child.getAttribute(elem);
                     let fnargs = fnAttr.split('(');
                     let fnName = fnargs[0];
-                    let className = fnName+ComponentScope;
+                    let className = fnName+ComponentScope+require('./uniqueId.js')(3,9);
                     child.classList.add(className);
                     let event = elem.replace('on:','');
                     let fnscripts = `
-                        document.querySelectorAll(".${className}").forEach(element=>{
-                            element.addEventListener("${event}",function(){
+                        document.getElementsByClassName("${className}")[0].addEventListener("${event}",function(){
                                 ${fnAttr}
-                            });
                         });
                     `;
                     child.removeAttribute(elem);
