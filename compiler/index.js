@@ -76,7 +76,7 @@ function NijorCompiler(options) {
     let componentName = id.replace('/','\\');
     componentName = id.split('\\');
     componentName = componentName.reverse();
-    let msg = chalk.hex('#0099ff')(`Nijor: Compiling ${componentName[0]}.`);
+    let msg = chalk.hex('#0099ff')(`Nijor: `)+chalk.hex('#40e249')('Compiling ${componentName[0]}.');
     console.log(msg);
     if (filter(id)) {
       let newCode = code.replace('<style','<n:style');
