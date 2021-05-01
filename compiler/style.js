@@ -1,15 +1,14 @@
 const fs = require('fs');
-const path = require('path');
-const sass = require('sass');
-function ReturnStyles(doc,scope,rootDir){
+async function ReturnStyles(doc,scope,options){
+    let style;
     try {
-        let style = doc.window.document.getElementsByTagName('n:style')[0].innerHTML;
+        style = doc.window.document.getElementsByTagName('n:style')[0].innerHTML;
+    } catch (error) {
+        style = '';
+    }
+    try {
         style = style.replace(/&amp;/g,'&');
-        let cssStyle = sass.renderSync({
-            data:style,
-            outputStyle:'compressed'
-        });
-        style = cssStyle.css.toString();
+        style = await options.Style(style);
         let cssSelectorRegex = /([^\r\n,{}]+)(,(?=[^}]*{)|\s*{)/g;
         let cssSelectors = style.match(cssSelectorRegex);
         try {
@@ -30,7 +29,7 @@ function ReturnStyles(doc,scope,rootDir){
                 }
             });
         } catch (error) {}
-        fs.appendFileSync(path.join(rootDir,'app/static/style.css'),style);
-    } catch (error) {}
+        fs.appendFileSync(options.styleSheet,style);
+    } catch (error) {console.log(error);}
 }
 module.exports = ReturnStyles;

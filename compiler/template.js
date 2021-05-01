@@ -21,8 +21,8 @@ try {
     return '';
 }
 }
-module.exports = function(doc,scope,ComponentScope,rootDir){
-    ReturnStyles(doc,scope,rootDir);
+module.exports = function(doc,scope,ComponentScope,options){
+    ReturnStyles(doc,scope,options);
     let template = doc.window.document.querySelector("template").innerHTML;
     let Postscripts = ReturnScripts(doc);
     // Changing the name of the components starts here
@@ -32,9 +32,9 @@ module.exports = function(doc,scope,ComponentScope,rootDir){
         let OriginalComponentName = child.tagName.toLowerCase();
         let componentName = OriginalComponentName+ComponentScope;
         let cpname = new RegExp('<'+OriginalComponentName,'gim');
-        let cpname2 = new RegExp('</'+OriginalComponentName+'>','gim');
+        let cpnameClosing = new RegExp('</'+OriginalComponentName+'>','gim');
         template = template.replace(cpname,'<'+componentName);
-        template = template.replace(cpname2,'</'+componentName+'>');
+        template = template.replace(cpnameClosing,'</'+componentName+'>');
     });
     // Changing the name of the components ends here
 

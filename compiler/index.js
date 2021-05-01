@@ -1,6 +1,7 @@
 const { createFilter } = require('@rollup/pluginutils');
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
+const chalk = require('chalk');
 const GenerateID = require('./uniqueId.js');
 const TemplateLoader = require('./template.js');
 function returnScriptsContent(doc,execute){
@@ -65,16 +66,18 @@ function ReturnRunModule(doc,ComponentScope){
     });
     return Mod.join('');
 }
-function NijorCompiler(rootDir) {
+function NijorCompiler(options) {
   let opts = { include: '**/*.nijor' };
   const filter = createFilter(opts.include, opts.exclude);
   return {
   name: "nijorCompile",
 
   async transform(code, id) {
-    let componentName = id.split('\\');
+    let componentName = id.replace('/','\\');
+    componentName = id.split('\\');
     componentName = componentName.reverse();
-    console.log(`Nijor: Compiling ${componentName[0]}.`);
+    let msg = chalk.hex('#0099ff')(`Nijor: Compiling ${componentName[0]}.`);
+    console.log(msg);
     if (filter(id)) {
       let newCode = code.replace('<style','<n:style');
       newCode = newCode.replace('</style>','</n:style>');
@@ -88,7 +91,7 @@ function NijorCompiler(rootDir) {
       } catch (error) {}
       const scope = GenerateID(6,20);
       const ComponentScope = GenerateID(2,5).toLowerCase();
-      const {template,Postscripts} = TemplateLoader(VirtualDocument,scope,ComponentScope,rootDir);
+      const {template,Postscripts} = TemplateLoader(VirtualDocument,scope,ComponentScope,options);
       const scripts =  ReturnScripts(VirtualDocument,'pre').script;
       const importStatementsPre =  ReturnScripts(VirtualDocument,'pre').ImportStatements;
       const importStatementsPost =  ReturnScripts(VirtualDocument,'post').ImportStatements;
