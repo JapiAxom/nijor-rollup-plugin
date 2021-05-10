@@ -85,6 +85,9 @@ function NijorCompiler(options) {
       const specsAttr = VirtualDocument.window.document.querySelector('template').getAttribute('specs') || '';
       try {
         VirtualDocument.window.document.querySelectorAll('script').forEach(child=>{
+        if(child.hasAttribute('defer')){
+          child.setAttribute('execute','post');
+        }
         if(child.getAttribute('execute')==="post") return;
         child.setAttribute('execute','pre');
         });
