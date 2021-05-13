@@ -85,14 +85,11 @@ module.exports = function(doc,scope,ComponentScope,options){
                     let fnAttr = child.getAttribute(elem);
                     let fnargs = fnAttr.split('(');
                     let fnName = fnargs[0];
-                    let className = fnName+ComponentScope+require('./uniqueId.js')(3,9);
-                    child.classList.add(className);
-                    let event = elem.replace('on:','');
-                    let fnscripts = `
-                        document.getElementsByClassName("${className}")[0].addEventListener("${event}",function(){
-                                ${fnAttr}
-                        });
-                    `;
+                    let newFuncName = '_'+ComponentScope+fnName;
+                    let newFuncNameCall = '_'+ComponentScope+fnAttr;
+                    let event = elem.replace(':','');
+                    child.setAttribute(event,`window.nijorfunc.${newFuncNameCall}`);
+                    let fnscripts = `window.nijorfunc["${newFuncName}"]=${fnName};`;
                     child.removeAttribute(elem);
                     let newPostscript = Postscripts+fnscripts;
                     Postscripts = newPostscript;
