@@ -67,14 +67,7 @@ module.exports = function(doc,scope,ComponentScope,options){
             child.setAttribute('href',route);
             return;
         }
-        let route_array_separated_by_hash = route.split('#');
-        if(route_array_separated_by_hash.length==1){
-            child.setAttribute('onclick',`window.nijor.redirect('${route}')`);
-            return;
-        }
-        let RoutePath = route_array_separated_by_hash[0];
-        let RouteHash = '#'+route_array_separated_by_hash[1];
-        child.setAttribute('onclick',`window.nijor.hashredirect('${RoutePath}','${RouteHash}')`);
+        child.setAttribute('onclick',`window.nijor.redirect('${route}')`);
     });
     // Compiling n:route ends here
 

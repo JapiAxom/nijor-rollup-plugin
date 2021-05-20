@@ -108,13 +108,9 @@ function NijorCompiler(options) {
                 ${importStatementsPre}
                 ${importStatementsPost}
                 export default new ${NijorComponentClass}(async function(${specsAttr}){
-                    try{
-                        ${scripts}
-                        return(\`${template}\`);
-                    }finally{
-                        setTimeout(async function(){${runmod}${Postscripts}},3);
-                    }
-                });
+                    ${scripts}
+                    return(\`${template}\`);
+                },async function(){${runmod}${Postscripts}});
               `,
               map: { mappings: "" }
             };
