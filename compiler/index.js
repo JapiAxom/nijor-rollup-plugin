@@ -1,9 +1,17 @@
 const { createFilter } = require('@rollup/pluginutils');
 const jsdom = require("jsdom");
+const path = require("path");
 const { JSDOM } = jsdom;
 const chalk = require('chalk');
 const GenerateID = require('./uniqueId.js');
 const TemplateLoader = require('./template.js');
+
+const extensionColorMap = {
+  '.nijor':'#40e249',
+  '.js':'#fffb0e',
+  'default':'#ff73f8'
+};
+
 function returnScriptsContent(doc,execute){
     try {
         let script = doc.window.document.querySelector('script[execute="'+execute+'"]').innerHTML;
@@ -72,50 +80,61 @@ function NijorCompiler(options) {
   return {
   name: "nijorCompile",
 
-  async transform(code, id) {
-    let componentName = id.replace('/','\\');
-    componentName = id.split('\\');
-    componentName = componentName.reverse();
-    let msg = chalk.hex('#0099ff')(`Nijor: `)+chalk.hex('#40e249')(`Compiling ${componentName[0]}.`);
-    console.log(msg);
-    if (filter(id)) {
-      let newCode = code.replace('<style','<n:style');
-      newCode = newCode.replace('</style>','</n:style>');
-      const VirtualDocument = new JSDOM(newCode);
-      const specsAttr = VirtualDocument.window.document.querySelector('template').getAttribute('specs') || '';
-      try {
-        VirtualDocument.window.document.querySelectorAll('script').forEach(child=>{
-        if(child.hasAttribute('defer')){
-          child.setAttribute('execute','post');
+    async transform(code, id) {
+      let componentName = id.replace('/','\\');
+      componentName = id.split('\\');
+      componentName = componentName.reverse();
+
+      {
+        let msg; 
+        try{
+          msg = chalk.rgb(0, 195, 255)(`Nijor: `)+chalk.hex(extensionColorMap[path.extname(id)])(`Compiling ${componentName[0]} .`);
+        }catch{
+          msg = chalk.rgb(0, 195, 255)(`Nijor: `)+chalk.hex(extensionColorMap['default'])(`Compiling ${componentName[0]} .`);
         }
-        if(child.getAttribute('execute')==="post") return;
-        child.setAttribute('execute','pre');
-        });
-      } catch (error) {}
-      const scope = GenerateID(6,20);
-      const ComponentScope = GenerateID(2,5).toLowerCase();
-      const {template,Postscripts} = TemplateLoader(VirtualDocument,scope,ComponentScope,options);
-      const scripts =  ReturnScripts(VirtualDocument,'pre').script;
-      const importStatementsPre =  ReturnScripts(VirtualDocument,'pre').ImportStatements;
-      const importStatementsPost =  ReturnScripts(VirtualDocument,'post').ImportStatements;
-      const NijorComponentClass = ' __Nijor_ComponentClass'+GenerateID(3,9);
-      let mod = ReturnModule(VirtualDocument);
-      let runmod = ReturnRunModule(VirtualDocument,ComponentScope);
-          return {
-              code: `
-                import ${NijorComponentClass} from 'nijor/components';
-                ${mod}
-                ${importStatementsPre}
-                ${importStatementsPost}
-                export default new ${NijorComponentClass}(async function(${specsAttr}){
-                    ${scripts}
-                    return(\`${template}\`);
-                },async function(){${runmod}${Postscripts}});
-              `,
-              map: { mappings: "" }
+        console.log(msg);
+      }
+      
+      if (filter(id)) {
+        let newCode = code.replace('<style','<n:style');
+        newCode = newCode.replace('</style>','</n:style>');
+        const VirtualDocument = new JSDOM(newCode);
+        const specsAttr = VirtualDocument.window.document.querySelector('template').getAttribute('specs') || '';
+        try {
+          VirtualDocument.window.document.querySelectorAll('script').forEach(child=>{
+          if(child.hasAttribute('defer')){
+            child.setAttribute('execute','post');
+          }
+          if(child.getAttribute('execute')==="post") return;
+          child.setAttribute('execute','pre');
+          });
+        } catch (error) {}
+        const scope = GenerateID(6,20);
+        const ComponentScope = GenerateID(2,5).toLowerCase();
+        const {template,Postscripts,Prescripts} = TemplateLoader(VirtualDocument,scope,ComponentScope,options);
+        const importStatementsPre =  ReturnScripts(VirtualDocument,'pre').ImportStatements;
+        const importStatementsPost =  ReturnScripts(VirtualDocument,'post').ImportStatements;
+        const NijorComponentClass = ' __Nijor_ComponentClass'+GenerateID(3,9);
+        let mod = ReturnModule(VirtualDocument);
+        let runmod = ReturnRunModule(VirtualDocument,ComponentScope);
+            return {
+                code: `
+                  import ${NijorComponentClass} from 'nijor/components';
+                  ${mod}
+                  ${importStatementsPre}
+                  ${importStatementsPost}
+                  ${Prescripts}
+                  export default new ${NijorComponentClass}(async function(${specsAttr}){
+                      return(\`${template}\`);
+                  },async function()
+                  {${runmod}
+                  ${Postscripts}
+                });
+                `,
+                map: { mappings: "" }
             };
+      }
     }
-  }
   };
 }
 module.exports = NijorCompiler;
