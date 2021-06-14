@@ -3,6 +3,10 @@ const { JSDOM } = jsdom;
 const ReturnStyles = require('./style.js');
 const GenerateID = require('./uniqueId.js');
 
+let CompileOnEventAttribute = require('./template/on-event.js');
+let CompileRouteAttribute = require('./template/n-route.js');
+
+var tmpVar;
 let allNijorComponents = [];
 let allNijorComponentsMap = {};
 
@@ -57,6 +61,7 @@ module.exports = function(doc,scope,ComponentScope,options){
         });
     } catch (error) {}
     // Compiling {{view}} ends here
+    
     template = template.replace(/`/g,'\\`');
     template = template.replace(/{/g,'${');
     template = template.replace(/\\\${/g,'\{');
@@ -70,13 +75,59 @@ module.exports = function(doc,scope,ComponentScope,options){
     // Adding the n-scope attribute ends here
 
     // Compiling n:route starts here
-    VirtualDocument.window.document.body.querySelectorAll('a[n:route]').forEach(child=>{
-        let route = child.getAttribute('n:route');
-        child.removeAttribute('n:route');
-        child.setAttribute('onclick',`return window.nijor.redirect('${route}')`);
-        child.setAttribute('href',route);
-    });
+    tmpVar = CompileRouteAttribute(VirtualDocument);
+    VirtualDocument.window.document.body.innerHTML = tmpVar;
     // Compiling n:route ends here
+
+    // Compiling on:{event} starts here
+    tmpVar = CompileOnEventAttribute(VirtualDocument,Prescripts,ComponentScope);
+    VirtualDocument.window.document.body.innerHTML = tmpVar.VirtualDocument;
+    Prescripts = tmpVar.Prescripts;
+    // Compiling on:{event} ends here
+
+    // Compiling n:for starts here
+    VirtualDocument.window.document.body.querySelectorAll('[n:for]').forEach(element=>{
+        let condition = element.getAttribute('n:for');
+        element.removeAttribute('n:for');
+        let innerContent = element.innerHTML;
+        element.innerHTML = '';
+        let runScript = '';
+
+        let fnName = 'fn_$For__'+GenerateID(3,4)+GenerateID(3,4);
+        let eventName = 'for'+GenerateID(3,4).toLowerCase();
+
+        element.setAttribute('on:'+eventName,fnName+'(this)');
+
+        element.querySelectorAll('*').forEach(child=>{
+            let elementName = child.tagName.toLowerCase();
+            let OriginalComponentName = allNijorComponentsMap[elementName];
+
+            if(isNijorComponent(elementName)){
+                runScript += `
+
+                $${OriginalComponentName}.init('${elementName}');
+                await $${OriginalComponentName}.run();
+
+                `;
+            }
+
+        });
+
+        let fn = `async function ${fnName}(_this){
+
+            _this.innerHTML = "";
+
+            for(${condition}){
+                _this.innerHTML += \`${innerContent}\`;
+            }
+
+            ${runScript}
+        }`;
+
+        Prescripts+=fn;
+        Postscripts+=`window.nijor.emitEvent('${eventName}',null);`;
+    });
+    // Compiling n:for ends here
 
     // Compiling n:reload starts here
     VirtualDocument.window.document.body.querySelectorAll('[n:reload]').forEach(element=>{
@@ -101,7 +152,7 @@ module.exports = function(doc,scope,ComponentScope,options){
         });
 
         let fn = `async function ${fnName}(_this){
-            _this.innerHTML = ${JSON.stringify(innerContent)};
+            _this.innerHTML = \`${innerContent}\`;
             ${runScript}
         }`;
 
@@ -110,24 +161,11 @@ module.exports = function(doc,scope,ComponentScope,options){
     // Compiling n:reload ends here
 
     // Compiling on:{event} starts here
-    VirtualDocument.window.document.querySelectorAll('*').forEach(child=>{
-        let allAttributes = child.getAttributeNames().filter(element=>element.indexOf('on:')>-1); // Getting all the attribute names of the tag ang and filtering the attributes which start with "on:"
-            allAttributes.forEach(elem=>{
-                    let fnAttr = child.getAttribute(elem);
-                    let fnargs = fnAttr.split('(');
-                    let fnName = fnargs[0];
-                    let newFuncName = '_'+ComponentScope+fnName;
-                    let newFuncNameCall = '_'+ComponentScope+fnAttr;
-                    let event = elem.replace(':','');
-                    child.setAttribute(event,`window.nijorfunc.${newFuncNameCall}`);
-                    let fnscripts = `window.nijorfunc["${newFuncName}"]=${fnName};`;
-                    child.removeAttribute(elem);
-                    let newPrescript = Prescripts+fnscripts;
-                    Prescripts = newPrescript;
-        });
-    });
+    tmpVar = CompileOnEventAttribute(VirtualDocument,Prescripts,ComponentScope);
+    VirtualDocument.window.document.body.innerHTML = tmpVar.VirtualDocument;
+    Prescripts = tmpVar.Prescripts;
     // Compiling on:{event} ends here
-
+    
     template = VirtualDocument.window.document.body.innerHTML;
     template = template.replace(/\s+/g,' ').trim().replace(/>\s+</g, "><");
     return {template,Postscripts,Prescripts};
