@@ -89,6 +89,7 @@ module.exports = function(doc,scope,ComponentScope,options){
     VirtualDocument.window.document.body.querySelectorAll('[n:for]').forEach(element=>{
         let condition = element.getAttribute('n:for');
         element.removeAttribute('n:for');
+        
         let innerContent = element.innerHTML;
         element.innerHTML = '';
         let runScript = '';
@@ -96,6 +97,10 @@ module.exports = function(doc,scope,ComponentScope,options){
         let fnName = 'fn_$For__'+GenerateID(3,4)+GenerateID(3,4);
         let eventName = 'for'+GenerateID(3,4).toLowerCase();
 
+        if(element.hasAttribute('n:reload')){
+            element.setAttribute('data-n:for',eventName);
+        }
+        
         element.setAttribute('on:'+eventName,fnName+'(this)');
 
         element.querySelectorAll('*').forEach(child=>{
@@ -150,6 +155,18 @@ module.exports = function(doc,scope,ComponentScope,options){
                 `;
             }
         });
+
+        if(element.hasAttribute('data-n:for')){
+
+            let forLoopfunc = element.getAttribute('data-n:for');
+            element.removeAttribute('data-n:for');
+            let fn = `async function ${fnName}(_this){
+                window.nijor.emitEvent('${forLoopfunc}',null);
+            }`;
+
+            Prescripts+=fn;
+            return;
+        }
 
         let fn = `async function ${fnName}(_this){
             _this.innerHTML = \`${innerContent}\`;
