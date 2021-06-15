@@ -91,8 +91,7 @@ module.exports = function(doc,scope,ComponentScope,options){
         element.removeAttribute('n:for');
         
         let innerContent = element.innerHTML;
-        element.innerHTML = '';
-        let runScript = '';
+        var runScript = '';
 
         let fnName = 'fn_$For__'+GenerateID(3,4)+GenerateID(3,4);
         let eventName = 'for'+GenerateID(3,4).toLowerCase();
@@ -102,7 +101,7 @@ module.exports = function(doc,scope,ComponentScope,options){
         }
         
         element.setAttribute('on:'+eventName,fnName+'(this)');
-
+        
         element.querySelectorAll('*').forEach(child=>{
             let elementName = child.tagName.toLowerCase();
             let OriginalComponentName = allNijorComponentsMap[elementName];
@@ -131,6 +130,7 @@ module.exports = function(doc,scope,ComponentScope,options){
 
         Prescripts+=fn;
         Postscripts+=`window.nijor.emitEvent('${eventName}',null);`;
+        element.innerHTML = '';
     });
     // Compiling n:for ends here
 
