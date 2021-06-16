@@ -85,6 +85,49 @@ module.exports = function(doc,scope,ComponentScope,options){
     Prescripts = tmpVar.Prescripts;
     // Compiling on:{event} ends here
 
+    // Compiling n:asyncLoad starts here
+    VirtualDocument.window.document.body.querySelectorAll('[n:asyncLoad]').forEach(element=>{
+        let condition = element.getAttribute('n:asyncLoad');
+        element.removeAttribute('n:asyncLoad');
+        let innerContent = element.innerHTML;
+        var runScript = '';
+
+        let fnName = 'fn_$AsyncLoad__'+GenerateID(3,4)+GenerateID(3,4);
+        let eventName = 'asyncload__'+GenerateID(3,4).toLowerCase();
+
+        if(element.hasAttribute('n:reload')){
+            element.setAttribute('data-n:asyncLoad',eventName);
+        }
+        
+        element.setAttribute('on:'+eventName,fnName+'(this)');
+        
+        element.querySelectorAll('*').forEach(child=>{
+            let elementName = child.tagName.toLowerCase();
+            let OriginalComponentName = allNijorComponentsMap[elementName];
+
+            if(isNijorComponent(elementName)){
+                runScript += `
+
+                $${OriginalComponentName}.init('${elementName}');
+                await $${OriginalComponentName}.run();
+
+                `;
+            }
+
+        });
+
+        let fn = `async function ${fnName}(_this){
+            ${condition}
+            _this.innerHTML = \`${innerContent}\`;
+            ${runScript}
+        }`;
+
+        Prescripts+=fn;
+        Postscripts+=`window.nijor.emitEvent('${eventName}',null);`;
+        element.innerHTML = '';
+    });
+    // Compiling n:asyncLoad ends here
+
     // Compiling n:for starts here
     VirtualDocument.window.document.body.querySelectorAll('[n:for]').forEach(element=>{
         let condition = element.getAttribute('n:for');
@@ -168,6 +211,17 @@ module.exports = function(doc,scope,ComponentScope,options){
             return;
         }
 
+        if(element.hasAttribute('data-n:asyncLoad')){
+
+            let asyncLoadfn = element.getAttribute('data-n:asyncLoad');
+            element.removeAttribute('data-n:asyncLoad');
+            let fn = `async function ${fnName}(_this){
+                window.nijor.emitEvent('${asyncLoadfn}',null);
+            }`;
+
+            Prescripts+=fn;
+            return;
+        }
         let fn = `async function ${fnName}(_this){
             _this.innerHTML = \`${innerContent}\`;
             ${runScript}
